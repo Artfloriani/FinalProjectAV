@@ -13,11 +13,18 @@ class Player extends VisibleObject {
 
   private float shootDelay;
 
+  private int life = 7;
+  
+  AudioClass audio;
+  
 
   public Player(PVector siz, PVector pos) {
     position = pos;
     size = siz;
     velocity = new PVector(0, 0);
+    
+    colour = color(34, 167, 240);
+       
   }
 
 
@@ -27,6 +34,7 @@ class Player extends VisibleObject {
     {
       velocity.add(new PVector(0, -15.0f));
       grounded = false;
+      audioPlay.playJump();
     }
     if (down)
     {
@@ -69,11 +77,6 @@ class Player extends VisibleObject {
     position.add(velocity);
   }
 
-  void drawThis()
-  {
-    fill(210, 82, 127);
-    rect(position.x, position.y, size.x, size.y);
-  }
 
   public void shoot(boolean var)
   {
@@ -92,6 +95,22 @@ class Player extends VisibleObject {
   }
   public void setRight(boolean value) {
     right = value;
+  }
+
+  public void hit() {
+    life--;
+  }
+
+  public int getLife(){
+   return life; 
+  }
+  public boolean dead()
+  {
+    if (life <= 0){
+      
+      return true;
+    }
+    return false;
   }
 }
 

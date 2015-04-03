@@ -1,23 +1,26 @@
-class Projectile extends VisibleObject{
-    
+class Projectile extends VisibleObject {
+
   public boolean fromPlayer = true;
-  
-  
-   public Projectile(PVector siz, PVector pos, PVector vel) {
+  private PVector target;
+
+
+  public Projectile(PVector siz, PVector pos, PVector target, color c, boolean from) {
+    fromPlayer = from;
     position = pos;
     size = siz;
-    velocity = vel;
-    
+
+    colour = c;
+
+
+    target.sub(position);
+    target.normalize();
+    target.mult(10);
+    velocity = target;
   }
-  
+
   public void update()
   {
     position.add(velocity);
   }
-  
-  void drawThis()
-  {
-    fill(217, 30, 24);
-    rect(position.x, position.y, size.x, size.y);
-  }
 }
+

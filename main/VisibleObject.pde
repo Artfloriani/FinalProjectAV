@@ -6,6 +6,8 @@ class VisibleObject {
   PVector velocity;
   
   PVector gravity = new PVector(0,0);
+  
+  color colour;
 
 
   void update()
@@ -14,7 +16,7 @@ class VisibleObject {
 
   void drawThis()
   {
-    fill(189, 195, 199);
+    fill(colour);
     rect(position.x, position.y, size.x, size.y);
   }
   
@@ -45,6 +47,12 @@ class VisibleObject {
   public void setPosition(PVector val)
   {
    position = val; 
+  }
+  
+  public color getColour()
+  {
+    return colour;
+    
   }
 
 }

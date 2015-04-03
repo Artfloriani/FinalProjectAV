@@ -3,16 +3,32 @@
  */
 
 
+import ddf.minim.*;
+
+
 Game _game;
 int colour = 0;
 Player player;
+
+PFont pixelate;
+
+Minim minim;
+AudioPlayer shootSound;
+AudioClass audioPlay;
+
 void setup()
 {
   size(1000, 500);
+  minim = new Minim(this);
+  audioPlay = new AudioClass(minim);
+  
   _game = new Game();
   _game.Start();
 
   player = _game.getPlayer();
+
+
+  pixelate = loadFont("Pixelate-48.vlw");
 }
 
 
@@ -22,6 +38,13 @@ void loop()
   {
     _game.GameLoop();
     //teste
+  } else {
+    _game.GameLoop();
+
+    textFont(pixelate, 72);
+    text("Game Over", width/2-175, height/2);
+    textSize(32);
+    text("Press R to restart", width/2-140, height/2+45);
   }
 }
 
@@ -41,6 +64,12 @@ void mouseReleased()
 {
   if (mouseButton == LEFT) {
     player.shoot(false);
+  }
+}
+
+void restart() {
+  if (!_game.IsRunning()) {
+    setup();
   }
 }
 
@@ -76,6 +105,9 @@ void keyPressed() {
     }
     if (key == 'd') {
       player.setRight(true);
+    }
+    if (key == 'r') {
+      restart();
     }
   }
 }

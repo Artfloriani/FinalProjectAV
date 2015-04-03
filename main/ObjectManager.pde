@@ -9,47 +9,67 @@ class ObjectManager {
   private ArrayList<VisibleObject> _gameObjects = new ArrayList<VisibleObject>();
   private ArrayList<Projectile> _projectiles = new ArrayList<Projectile>();
   private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+  private ArrayList<Particles> effects = new ArrayList<Particles>();
+  
 
   ObjectManager()
   {
+
   }
 
   public void start() {
     for (int i = 0; i < 100; i ++)
     {
-      DestructibleTile temp = new DestructibleTile(new PVector(13, 13), new PVector((i)*14, 490));
+      DestructibleTile temp = new DestructibleTile(new PVector(13, 13), new PVector(-100+(i)*14, 490));
       temp.indestructible();
       _gameObjects.add(temp);
       tiles.add(temp);
     }
 
-    Enemy first = new Enemy(new PVector(32, 32), new PVector(100, 50));
-    first.setGravity(new PVector (0, 0.8f).get());
-
-
-    _gameObjects.add(first);
-    enemies.add(first);
+    for (int i = 0; i < 2; i++) {
+      spawnMonster();
+    }
   }
 
   public void update() {
+    
+    for (int i = 0; i < enemies.size (); i++) {
+      enemies.get(i).setTarget(player.getPosition());
+      //enemies.get(i).update();
+      if (enemies.get(i).shoot())
+      {
+        Projectile temp = new Projectile(new PVector(10, 10), enemies.get(i).getPosition().get(), player.getPosition().get(), color(246, 36, 89), false);
+        _gameObjects.add(temp);
+        _projectiles.add(temp);
+      }
+    }
+    
+    
     for (int i = 0; i < _gameObjects.size (); i++) {
       _gameObjects.get(i).update();
-      if (_gameObjects.get(i).getPosition().x > width || _gameObjects.get(i).getPosition().y > height || _gameObjects.get(i).getPosition().y < 0
-        || _gameObjects.get(i).getPosition().x < 0)
+      if (_gameObjects.get(i).getPosition().x > width+200 || _gameObjects.get(i).getPosition().y > height
+        || _gameObjects.get(i).getPosition().x < -200)
         _gameObjects.remove(i);
     }
 
 
-    for(int i = 0; i < enemies.size(); i++){
-      enemies.get(i).setTarget(player.getPosition());
-      enemies.get(i).update();
-    }
+    
 
 
     handleCollisions();
 
+    for (int i = 0; i < effects.size (); i++)
+    {
+      //effects.get(i).update();
+      if (millis() - effects.get(i).bornTime > 6000)
+      {
+        _gameObjects.remove(effects.get(i));
+        effects.remove(i);
+      }
+    }
 
-    //checkPlayerCollision();
+
+
     player.move();
     for (int i = 0; i < enemies.size (); i++)
     {
@@ -83,6 +103,11 @@ class ObjectManager {
   public void  addProjectile(Projectile proj)
   {
     _projectiles.add(proj);
+  }
+
+  public void addEffects(Particles effe)
+  {
+    effects.add(effe);
   }
 
   public void handleCollisions()
@@ -134,6 +159,20 @@ class ObjectManager {
           }
         }
       }
+
+
+      for (int k = 0; k < effects.size (); k++)
+      {
+        check = checkCollision(effects.get(k), tiles.get(i));
+
+        if (check.x == 1) {
+          effects.get(k).setVelocity(new PVector(0, effects.get(k).getVelocity().y));
+        }
+        if (check.y == 1) {
+          effects.get(k).setVelocity(new PVector(0, 0));
+          effects.get(k).setPosition(new PVector(effects.get(k).getPosition().x, tiles.get(i).getPosition().y - effects.get(k).getSize().y));
+        }
+      }
     }
 
 
@@ -159,6 +198,67 @@ class ObjectManager {
         enemies.get(i).setVelocity(new PVector (enemies.get(i).getVelocity().x, player.getVelocity().y));
         enemies.get(i).grounded = true;
       }
+    }
+
+
+    //Collision Between Projectile and Enemy/Player
+
+    for (int i = 0; i < _projectiles.size (); i++)
+    {
+      boolean hit = false;
+      PVector check = checkCollision(player, _projectiles.get(i)); 
+      if ((check.x == 1 || check.y ==  1) && !_projectiles.get(i).fromPlayer)
+      {
+        player.hit();
+       
+        hit = true;
+        
+        audioPlay.playHit();
+      }
+
+      if (i < _projectiles.size())
+        for (int j = 0; j < enemies.size (); j++)
+        {
+          check = checkCollision(enemies.get(j), _projectiles.get(i)); 
+
+          if ((check.x == 1 || check.y == 1) && _projectiles.get(i).fromPlayer)
+          {
+            hit = true;
+            enemies.get(j).hit();
+            
+            audioPlay.playHit();
+            
+            if (enemies.get(j).dead())
+            {
+              explosion(enemies.get(j).getPosition().get(), _projectiles.get(i).getVelocity().get(), enemies.get(j).getColour());
+              _gameObjects.remove(enemies.get(j));
+              enemies.remove(j);
+            }
+          }
+        }
+
+      if (hit)
+      {
+
+        _gameObjects.remove(_projectiles.get(i));
+        _projectiles.remove(i);
+      }
+    }
+  }
+
+  public void explosion(PVector pos, PVector dir, color c)
+  {
+    float quantity = random(12, 20);
+    dir.mult(0.1);
+
+    for (int i = 0; i < quantity; i++)
+    {
+      PVector changeDir = new PVector(dir.x*random(1, 5), dir.y+random(-5, -1));
+      PVector changePos = new PVector(pos.x, pos.y + random(-15, 15));
+
+      Particles temp = new Particles(new PVector(8, 8), changePos, changeDir, new PVector (0, 0.18f), c);
+      _gameObjects.add(temp);
+      effects.add(temp);
     }
   }
 
@@ -191,6 +291,42 @@ class ObjectManager {
       collision.y = 1;
     }
     return collision;
+  }
+
+  public void gameOver() {
+    for (int i = 0; i < enemies.size (); i++)
+    {
+      enemies.get(i).gameOver = true;
+    }
+  }
+  
+  public void spawnMonster()
+  {
+    PVector pos = new PVector(0,0);
+    if(random(0,1) < 0.5f)
+    {
+      pos = new PVector(random(-100,100),50);
+    }else
+    {
+      pos =  new PVector(random(width-100, width+100),50);
+    }
+      Enemy first = new Enemy(new PVector(25, 25), pos);
+      first.setGravity(new PVector (0, 0.8f).get());
+      //first.setTarget(player.getPosition());
+      _gameObjects.add(first);
+      enemies.add(first);
+  }
+  
+  public void clearFloor(){
+    println(_gameObjects.size());
+    for(int i = 0; i < tiles.size(); i++)
+    {
+     _gameObjects.remove(tiles.get(i));
+     
+    }
+    
+    tiles.clear(); 
+    
   }
 }
 

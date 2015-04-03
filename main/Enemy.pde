@@ -3,37 +3,53 @@ class Enemy extends VisibleObject{
   private PVector target;
   
   private float lastJump;
-  private boolean grounded = true;
+  private boolean grounded = false;
+  
+  private int life = 2;
+  
+  private float shootTime;
+  
+  public boolean gameOver;
   
   public Enemy(PVector siz, PVector pos) {
     position = pos;
     size = siz;
     velocity = new PVector(0, 0);
     
+    colour = color(random(150,255), random(70,200), random (70,150));
+    //colour = color(224, 130, 131);
+    
+    shootTime = millis() + random(1000,5000);
+    
+    target = new PVector(0,0);
+    
+    gameOver = false;
+    
   }
   
   public void update()
   {
-    if(millis() - lastJump > 5000 && grounded)
+    if(millis() - lastJump > 1500 && grounded)
     {
       lastJump = millis() + random (-300,300);
       if(target.x < position.x)
-        velocity = new PVector(random(-8, -12), -15.0f);
+        velocity = new PVector(random(-3, -6), -15.0f);
       else
-        velocity = new PVector(random(8,12), -15.0f);
+        velocity = new PVector(random(3,6), -15.0f);
         
+       if(gameOver){
+         velocity = new PVector(0, random(-14,-20.0f));
+         lastJump = millis() + random(-500,0);
+         
+       }
        grounded = false;
     }
     
     
     velocity.add(gravity);
+    
   }
   
-  void drawThis()
-  {
-    fill(135, 211, 124);
-    rect(position.x, position.y, size.x, size.y);
-  }
  
   
   public void move()
@@ -43,7 +59,33 @@ class Enemy extends VisibleObject{
   
   public void setTarget(PVector value)
   {
+    
    target = value; 
+  }
+  
+  public void hit()
+  {
+   life--;
+  }
+  
+  public boolean dead()
+  {
+   if(life <= 0)
+      return true;
+     return false; 
+  }
+  
+  public float getShoot()
+  {
+    return shootTime;  
+  }
+  
+  public boolean shoot(){
+    if(millis() - shootTime >= 1000 && !gameOver){
+       shootTime = millis() + random(0,2000); 
+       return true;
+    }
+    return false;
   }
   
 }

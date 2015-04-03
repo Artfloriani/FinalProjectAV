@@ -10,6 +10,8 @@ class DestructibleTile extends VisibleObject {
     position = pos;
     size = siz;
     
+    colour = color(189, 195, 199);
+    
   }
   
   public void indestructible()
