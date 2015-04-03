@@ -26,13 +26,10 @@ class ObjectManager {
       tiles.add(temp);
     }
 
-    for (int i = 0; i < 2; i++) {
-      spawnMonster();
-    }
   }
 
   public void update() {
-    
+   
     for (int i = 0; i < enemies.size (); i++) {
       enemies.get(i).setTarget(player.getPosition());
       //enemies.get(i).update();
@@ -52,9 +49,7 @@ class ObjectManager {
         _gameObjects.remove(i);
     }
 
-
-    
-
+  
 
     handleCollisions();
 
@@ -149,13 +144,16 @@ class ObjectManager {
       {
         for (int j = 0; j < _projectiles.size (); j++)
         {
+         
           check = checkCollision(_projectiles.get(j), tiles.get(i));
           if (check.x == 1 || check.y == 1)
           {
             _gameObjects.remove(_projectiles.get(j));
             _projectiles.remove(j);
+            j--;
             _gameObjects.remove(tiles.get(i));
             tiles.remove(i);
+            i--;
           }
         }
       }
@@ -305,10 +303,10 @@ class ObjectManager {
     PVector pos = new PVector(0,0);
     if(random(0,1) < 0.5f)
     {
-      pos = new PVector(random(-100,100),50);
+      pos = new PVector(random(100,150),25);
     }else
     {
-      pos =  new PVector(random(width-100, width+100),50);
+      pos =  new PVector(random(width-150, width-50),25);
     }
       Enemy first = new Enemy(new PVector(25, 25), pos);
       first.setGravity(new PVector (0, 0.8f).get());
@@ -318,7 +316,6 @@ class ObjectManager {
   }
   
   public void clearFloor(){
-    println(_gameObjects.size());
     for(int i = 0; i < tiles.size(); i++)
     {
      _gameObjects.remove(tiles.get(i));
@@ -326,6 +323,14 @@ class ObjectManager {
     }
     
     tiles.clear(); 
+    
+    for (int i = 0; i < 100; i ++)
+    {
+      DestructibleTile temp = new DestructibleTile(new PVector(13, 13), new PVector(-100+(i)*14, height-13));
+      temp.indestructible();
+      _gameObjects.add(temp);
+      tiles.add(temp);
+    }
     
   }
 }

@@ -5,7 +5,7 @@ class Enemy extends VisibleObject{
   private float lastJump;
   private boolean grounded = false;
   
-  private int life = 2;
+  private int life = 1;
   
   private float shootTime;
   
@@ -24,6 +24,8 @@ class Enemy extends VisibleObject{
     target = new PVector(0,0);
     
     gameOver = false;
+    
+    life = round(random(1,2));
     
   }
   

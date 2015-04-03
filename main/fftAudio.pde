@@ -124,7 +124,8 @@ class fftAudio {
       fft.forward( buffer.getChannel(0) );
 
       //Save the band value in our multi-dimensional array
-      for (int j = 0; j < 512; j++)
+  
+      for (int j = 0; j < fftBufferSize/2; j++)
       {
         spectrum[i][j] = fft.getBand(j);
       }

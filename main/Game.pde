@@ -19,13 +19,13 @@ class Game {
   private int level = 0;
 
   float[] frequencies = new float[100];
+  float[] tempFrequencies = new float[100];
   PImage heart;
 
   private boolean running;
 
 
   Game() {
-
   }
 
 
@@ -55,7 +55,6 @@ class Game {
     {
       float value = noise(i);
       frequencies[i] = value;
-      println(frequencies[i]);
     }
   }
 
@@ -64,23 +63,62 @@ class Game {
 
 
   public void GameLoop() {
-   
+    deltaTime = (millis() - frameTime);
+    frameTime = millis();
+
+    
+    int timer = millis() - musicStart;
+
+    float max = 0, maxIndex = 0;
+    int index = (int)(timer/fft.getBlockLength()) % fft.getBlocks();
     for (int i = 0; i < 100; i++)
+      {
+        frequencies[i] = spectrum[index][i]*2.5f;
+        if (frequencies[i] > max && i > 4)
+        {
+          max = frequencies[i];
+          maxIndex = i;
+        }
+      }
+    boolean generated = false;
+    if (timer <= 10015) {
+      
+      if(timer > 9500 && maxIndex > 22 && max > 12 && max < 30)
+      {
+        generated = true;
+        tempFrequencies = frequencies;
+
+        generate();
+      }
+      else if(timer < 9500){
+        generate();
+      }
+    }
+    
+    float total = 0;
+    for(int i = 22; i < 28; i++)
     {
-      float value = noise(i+ millis()/100);
-      frequencies[i] = value;
-     }
-     //generate();
+      total += frequencies[i];
+    }
     
+    background(total*2, 73, 94);
+     
     
-    if (millis() - spawn > 1500)
+ 
+
+
+
+
+    if (millis() - spawn > 750 && timer > 10500 && maxIndex > 22.0f)
+    {
+      manager.spawnMonster();
+      spawn = millis();
+    }else if(millis() - spawn > 3000 && timer > 10500)
     {
       manager.spawnMonster();
       spawn = millis();
     }
-    deltaTime = (millis() - frameTime)/1000.0f;
-    frameTime = millis();
-    background(52, 73, 94);
+
     manager.update();
 
     if (player.shooting)
@@ -88,8 +126,8 @@ class Game {
       PVector pPos = player.getPosition().get();
 
       Projectile temp = new Projectile(new PVector(10, 10), pPos, new PVector(mouseX, mouseY), player.getColour(), true);
-      manager.add(temp);
       manager.addProjectile(temp);
+      manager.add(temp);
       player.shooting = false;
       audioPlay.playShoot();
     }
@@ -138,9 +176,9 @@ class Game {
     level++;
     for (int i = 0; i < 100; i ++)
     {
-      int value = (int)(frequencies[i]*15);
+      int value = (int)(frequencies[i]);
       for (int j = 0; j < value; j++) {
-        DestructibleTile temp = new DestructibleTile(new PVector(13, 13), new PVector(-100+(i)*14, height-13 - j*14));
+        DestructibleTile temp = new DestructibleTile(new PVector(13, 13), new PVector((i)*14, height-13 - j*14));
         manager.add(temp);
         manager.addTile(temp);
       }

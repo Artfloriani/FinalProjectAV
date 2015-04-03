@@ -4,7 +4,8 @@
 
 
 import ddf.minim.*;
-
+import ddf.minim.analysis.*;
+import ddf.minim.spi.*;
 
 Game _game;
 int colour = 0;
@@ -16,12 +17,17 @@ Minim minim;
 AudioPlayer shootSound;
 AudioClass audioPlay;
 
+fftAudio fft;
+float[][] spectrum;
+
+int musicStart;
+
 void setup()
 {
   size(1000, 500);
   minim = new Minim(this);
   audioPlay = new AudioClass(minim);
-  
+
   _game = new Game();
   _game.Start();
 
@@ -29,29 +35,34 @@ void setup()
 
 
   pixelate = loadFont("Pixelate-48.vlw");
+
+
+  fft = new fftAudio(this, "soundtrack.mp3", 256);
+
+  spectrum = fft.getSpectrum();
+  
+  audioPlay.playMusic();
+  musicStart = millis();
 }
 
-
-void loop()
+void draw()
 {
+   textFont(pixelate, 72);
   if (_game.IsRunning())
   {
+    
     _game.GameLoop();
+   
+    textSize(32);
+    text("WASD + MOUSE", width/2-100, 90);
     //teste
   } else {
     _game.GameLoop();
 
-    textFont(pixelate, 72);
     text("Game Over", width/2-175, height/2);
     textSize(32);
     text("Press R to restart", width/2-140, height/2+45);
   }
-}
-
-
-void draw()
-{
-  loop();
 }
 
 void mousePressed() {
@@ -69,6 +80,7 @@ void mouseReleased()
 
 void restart() {
   if (!_game.IsRunning()) {
+    audioPlay.stopMusic();
     setup();
   }
 }
