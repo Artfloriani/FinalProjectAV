@@ -1,7 +1,3 @@
-/**
- * Created by Llama on 10/03/2015.
- */
-
 
 import ddf.minim.*;
 import ddf.minim.analysis.*;
@@ -55,6 +51,9 @@ void draw()
    
     textSize(32);
     text("WASD + MOUSE", width/2-100, 90);
+    
+    textSize(24);
+    text("Hold 'I' for fun", width-215, 25);
     //teste
   } else {
     _game.GameLoop();

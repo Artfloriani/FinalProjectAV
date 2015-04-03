@@ -1,7 +1,3 @@
-
-/**
- * Created by Llama on 10/03/2015.
- */
 class DestructibleTile extends VisibleObject {
   
   public boolean destructible = true;

@@ -1,8 +1,5 @@
 import java.util.ArrayList;
 
-/**
- * Created by Llama on 10/03/2015.
- */
 class ObjectManager {
   private Player player;
   private ArrayList<DestructibleTile> tiles = new ArrayList<DestructibleTile>();

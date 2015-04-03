@@ -1,6 +1,3 @@
-/**
- * Created by Llama on 10/03/2015.
- */
 class Player extends VisibleObject {
   private boolean up = false;
   private boolean down = false;
