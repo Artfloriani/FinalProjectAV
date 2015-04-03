@@ -49,7 +49,6 @@ class Enemy extends VisibleObject{
     
     
     velocity.add(gravity);
-    
   }
   
  
